@@ -12,7 +12,8 @@ It can handle:
     will be jumped to.
     Also anchors are supported, for example `[foo](second.md#custom-id)`.
 - **URL links**:
-    `[google](https://google.com)` will be opened with the OS browser.
+    `[google](https://google.com)` or `<https://www.google.com>`
+    will be opened with the OS browser.
 - **non text files**:
     if the option `g:mdnav#Extensions` is set, non text files will be opened
     via the operating system.
@@ -67,6 +68,8 @@ otherwise it will be opened by the current webbrowser.
 The following links can be used (the possible cursor positions are indicated by
 `^`):
 
+    This link <https://example.com> will be opened inside the browser.
+              ^^^^^^^^^^^^^^^^^^^^^
 
     This [link](https://example.com) will be opened inside the browser.
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^

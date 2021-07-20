@@ -276,6 +276,9 @@ def parse_link(cursor, lines):
         return None
 
     _logger.info('found match: %s', m.groups())
+    if m.group('url') is not None:
+        _logger.info('found url: %s', m.group('url'))
+        return m.group('url')
     assert (m.group('direct') is None) != (m.group('indirect') is None)
 
     if m.group('direct') is not None:
@@ -311,21 +314,25 @@ reference_definition_pattern = re.compile(r'''
 link_pattern = re.compile(r'''
     ^
     (?P<link>
-        \[                      # start of link text
-            (?P<text>[^\]]*)    # link text
-        \]                      # end of link text
         (?:
-            \(                  # start of target
-                (?P<direct>
-                    [^\)]*
-                )
-            \)                  # collect
+            \<(?P<url>[^\>]*)\>       # url
             |
-            \[
-                (?P<indirect>
+            \[                      # start of link text
+                (?P<text>[^\]]*)    # link text
+            \]                      # end of link text
+            (?:
+                \(                  # start of target
+                    (?P<direct>
+                        [^\)]*
+                    )
+                \)                  # collect
+                |
+                \[
+                    (?P<indirect>
                     [^\]]*
-                )
-            \]
+                    )
+                \]
+            )
         )
     )
     .*                  # any non matching characters
@@ -336,11 +343,18 @@ link_pattern = re.compile(r'''
 def select_from_start_of_link(line, pos):
     """Return the start of the link string and the new cursor
     """
-    if pos < len(line) and line[pos] == '[':
+    # Check whether a url is specified as opposed to a link:
+    url = False
+    if pos < len(line) and line[pos] in ['[', '<']:
         start = pos
-
+        if line[pos] == '<':
+            url = True
     else:
-        start = line[:pos].rfind('[')
+        start = line[:pos].rfind('<')
+        if start > -1:
+            url = True
+        else:
+            start = line[:pos].rfind('[')
 
     # TODO: handle escapes
 
@@ -348,7 +362,7 @@ def select_from_start_of_link(line, pos):
         return None, pos
 
     # check for indirect links
-    if start != 0 and line[start - 1] == ']':
+    if start != 0 and not url and line[start - 1] == ']':
         alt_start = line[:start].rfind('[')
         if alt_start >= 0:
             start = alt_start
