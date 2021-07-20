@@ -6,6 +6,7 @@ import mdnav
 parse_link_cases = [
     # default cases
     (['foo ^[bar](baz.md)'], 'baz.md'),
+    (['foo ^<baz.md>'], 'baz.md'),
     (['foo [b^ar](baz.md)'], 'baz.md'),
     (['foo [b^ar](baz.md) [bar](bar.md)'], 'baz.md'),
     (['foo [b^ar][bar]', '[bar]: baz.md'], 'baz.md'),
